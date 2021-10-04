@@ -9,7 +9,6 @@ import java.util.*;
 
 public class TransactionFunctions {
 
-    public static FileHandling fileHandling = new FileHandling();
 
 
     public void transfer(Customer cust, Transaction tr) throws IOException {
@@ -33,11 +32,11 @@ public class TransactionFunctions {
                 tr.setSenderAccNo(accNo);
 
 
-                if (fileHandling.getBeneficiaryfromFile(accNo) != "") {
+                if (DataHandler.getBeneficiaryfromFile(accNo) != "") {
 
                     System.out.println("Select a beneficiary Account: \n");
 
-                    String account[] = fileHandling.getBeneficiaryfromFile(accNo).split(";");
+                    String account[] = DataHandler.getBeneficiaryfromFile(accNo).split(";");
                     int i = 1;
                     for (String s : account) {
                         System.out.println(i++ + "  " + s);
@@ -54,7 +53,7 @@ public class TransactionFunctions {
                     if (val <= account.length && val > 0) {
 
                         raccNo = Integer.parseInt(account[val - 1]);
-                        racc = fileHandling.getAccountfromFile(raccNo);
+                        racc = DataHandler.getAccountfromFile(raccNo);
                         tr.setReceiverAccNo(racc.getAccountNo());
 
                         System.out.println("Enter transaction amt");
@@ -70,12 +69,12 @@ public class TransactionFunctions {
                                 if (acc.getPin() == pin) {
                                     acc.setBalance(acc.getBalance() - amt);
                                     racc.setBalance(racc.getBalance() + amt);
-                                    fileHandling.changeBalance(acc);
-                                    fileHandling.changeBalance(racc);
+                                    FileHandling.changeBalance(acc);
+                                    FileHandling.changeBalance(racc);
                                     tr.setCurrentBalance(acc.getBalance());
-                                    tr.setTransactionID(fileHandling.getLastTranId());
+                                    tr.setTransactionID(FileHandling.getLastTranId());
                                     tr.setTranactionTime(new Date().toString());
-                                    fileHandling.addTransactiontoFile(tr);
+                                    DataHandler.addTransactiontoFile(tr);
                                     Operations.printTransaction(tr);
                                 } else {
                                     System.out.println("Wrong pin");
@@ -116,14 +115,14 @@ public class TransactionFunctions {
         Account racc;
         int accnNo = Integer.parseInt(sc.nextLine());
         if (accnNo != acc.getAccountNo() && checkBeneficiary(acc.getAccountNo(),accnNo)) {
-            racc = fileHandling.getAccountfromFile(accnNo);
+            racc = DataHandler.getAccountfromFile(accnNo);
             if (racc != null) {
                 System.out.println("Enter Beneficiary Account IFSC code");
                 String code = sc.nextLine();
 
                 if (racc.getIfscCode().equals(code)) {
 
-                    fileHandling.addBeneficiarytoFile(acc.getAccountNo(), accnNo);
+                    DataHandler.addBeneficiarytoFile(acc.getAccountNo(), accnNo);
                     System.out.println("New beneficiary Added");
                     return racc;
 
@@ -143,7 +142,7 @@ public class TransactionFunctions {
 
     public boolean checkBeneficiary(int accNo,int benNo) throws IOException {
 
-       String st = fileHandling.getBeneficiaryfromFile(accNo);
+       String st = DataHandler.getBeneficiaryfromFile(accNo);
        if(st==""){
            return true;
        }else {
@@ -178,7 +177,7 @@ public class TransactionFunctions {
 
     public Account checkAccountNo(int accNo, Customer cust) throws IOException {
 
-        List<Account> accountList = fileHandling.getAccountList();
+        List<Account> accountList = DataHandler.getAccountList();
         if (accountList != null) {
             for (Account acc : accountList) {
                 if (acc.getAccountNo() == accNo && acc.getCustomerID() == cust.getCustomerID()) {
@@ -196,7 +195,7 @@ public class TransactionFunctions {
     public Account checkAccountNo(int accNo) throws IOException {
 
 
-        Iterator var5 = fileHandling.getAccountList().iterator();
+        Iterator var5 = DataHandler.getAccountList().iterator();
 
         while (var5.hasNext()) {
             Account acc = (Account) var5.next();

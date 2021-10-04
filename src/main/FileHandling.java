@@ -268,7 +268,7 @@ public class FileHandling {
     }
 
 
-    public int getLastCustId() throws IOException {
+    public static int getLastCustId() throws IOException {
 
         BufferedReader frt = new BufferedReader(new FileReader(custFile));
         String st;
@@ -281,7 +281,7 @@ public class FileHandling {
         return ++id;
     }
 
-    public int getLastEmpId() throws IOException {
+    public static int getLastEmpId() throws IOException {
 
         BufferedReader frt = new BufferedReader(new FileReader(empFile));
         String st;
@@ -294,7 +294,7 @@ public class FileHandling {
         return ++id;
     }
 
-    public int getLastAccNo() throws IOException {
+    public static int getLastAccNo() throws IOException {
 
         BufferedReader frt = new BufferedReader(new FileReader(accFile));
         String st;
@@ -307,7 +307,7 @@ public class FileHandling {
         return ++id;
     }
 
-    public int getLastAddId() throws IOException {
+    public static int getLastAddId() throws IOException {
 
         BufferedReader frt = new BufferedReader(new FileReader(addFile));
         String st;
@@ -320,7 +320,7 @@ public class FileHandling {
         return ++id;
     }
 
-    public int getLastTranId() throws IOException {
+    public static int getLastTranId() throws IOException {
 
         BufferedReader frt = new BufferedReader(new FileReader(tranFile));
         String st;
@@ -490,7 +490,7 @@ public class FileHandling {
     }
 
 
-    public void changeBalance(Account account) throws IOException {
+    public static void changeBalance(Account account) throws IOException {
 
         BufferedReader frt = new BufferedReader(new FileReader(accFile));
         String st;

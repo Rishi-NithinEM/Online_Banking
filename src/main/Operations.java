@@ -16,9 +16,6 @@ import java.util.regex.Pattern;
 
 public class Operations {
 
-    public static FileHandling fileHandling = new FileHandling();
-
-
     public static void createNewCustomer() throws IOException {
         Scanner sc = new Scanner(System.in);
         Customer newCustomer = new Customer();
@@ -48,14 +45,18 @@ public class Operations {
             }
             System.out.println("Enter password");
             newCustomer.setPassword(sc.nextLine());
-            if (newCustomer.getPassword().trim().equals("")) {
-                System.out.println("password should not be empty");
+            if (newCustomer.getPassword().trim().equals("") && newCustomer.getPassword().length()>=6) {
+                System.out.println("password should not be empty and should be at least have 6 characters ");
                 continue;
+            }else{
+                if(newCustomer.getPassword().contains(",")){
+                    System.out.println("Should not contain ',' in the password");
+                }
             }
-            newCustomer.setCustomerID(fileHandling.getLastCustId());
+            newCustomer.setCustomerID(FileHandling.getLastCustId());
             newCustomer.setAddressID(createNewAddress().getAddressID());
             System.out.println("Your CustomerId is : " + newCustomer.getCustomerID());
-            fileHandling.addCustomertoFile(newCustomer);
+            DataHandler.addCustomertoFile(newCustomer);
             newCustomer = null;
             return;
         }
@@ -115,7 +116,7 @@ public class Operations {
 
     public static void isValidCustomer() throws IOException, ParseException {
 
-        if (fileHandling.getCustomerList() != null) {
+        if (DataHandler.getCustomerList() != null) {
 
             Scanner sc = new Scanner(System.in);
             int id;
@@ -132,7 +133,7 @@ public class Operations {
             System.out.println("Enter customer password");
             String password = sc.nextLine();
 
-            Customer cust = fileHandling.getCustomerfromFile(id);
+            Customer cust = DataHandler.getCustomerfromFile(id);
 
             if (cust != null) {
                 if (cust.getPassword().equals(password)) {
@@ -208,9 +209,9 @@ public class Operations {
             }
             ee.setSalary(Integer.parseInt(st));
             ee.setEmployeeAddressID(createNewAddress().getAddressID());
-            ee.setEmployeeID(fileHandling.getLastEmpId());
+            ee.setEmployeeID(FileHandling.getLastEmpId());
             System.out.println("Your Employee ID : " + ee.getEmployeeID());
-            fileHandling.addEmployeetoFile(ee);
+            DataHandler.addEmployeetoFile(ee);
             ee = null;
             return;
         }
@@ -218,7 +219,7 @@ public class Operations {
 
     public static boolean isValidEmployee() throws IOException, ParseException {
 
-        if (fileHandling.getEmployeeList() != null) {
+        if (DataHandler.getEmployeeList() != null) {
 
             Scanner sc = new Scanner(System.in);
             int empID;
@@ -235,7 +236,7 @@ public class Operations {
             System.out.println("Enter Employee Name");
             String empName = sc.nextLine();
 
-            Employee ee = fileHandling.getEmployeefromFile(empID);
+            Employee ee = DataHandler.getEmployeefromFile(empID);
 
 
             if (ee != null) {
@@ -303,9 +304,9 @@ public class Operations {
             break;
         }
 
-        newAddress.setAddressID(fileHandling.getLastAddId());
+        newAddress.setAddressID(FileHandling.getLastAddId());
         System.out.println("Your AddressId : " + newAddress.getAddressID());
-        fileHandling.addAddresstoFile(newAddress);
+        DataHandler.addAddresstoFile(newAddress);
         return newAddress;
     }
 
@@ -360,7 +361,7 @@ public class Operations {
                     } else {
                         num = Integer.parseInt(st);
 
-                        Customer cust = fileHandling.getCustomerfromFile(num);
+                        Customer cust = DataHandler.getCustomerfromFile(num);
 
 
                         if (cust != null) {
@@ -420,10 +421,10 @@ public class Operations {
                     createNewEmployee();
                     break;
                 case 5: {
-                    if (fileHandling.getTransactionList() == null) {
+                    if (DataHandler.getTransactionList() == null) {
                         System.out.println("No Transactions made yet");
                     } else {
-                        Iterator var5 = fileHandling.getTransactionList().iterator();
+                        Iterator var5 = DataHandler.getTransactionList().iterator();
 
 
                         while (var5.hasNext()) {
@@ -458,8 +459,8 @@ public class Operations {
         List<Account> acc = new ArrayList<>();
         boolean b = false;
 
-        if (fileHandling.getAccountList() != null) {
-            Iterator var5 = fileHandling.getAccountList().iterator();
+        if (DataHandler.getAccountList() != null) {
+            Iterator var5 = DataHandler.getAccountList().iterator();
 
             while (var5.hasNext()) {
                 Account i = (Account) var5.next();
@@ -545,8 +546,8 @@ public class Operations {
                 }
             }
         }
-        ac.setAccountNo(fileHandling.getLastAccNo());
-        fileHandling.addAccounttoFile(ac);
+        ac.setAccountNo(FileHandling.getLastAccNo());
+        DataHandler.addAccounttoFile(ac);
         System.out.println("Your Account Number :" + ac.getAccountNo()+"\nIFSC_CODE: "+ac.getIfscCode());
         return ac;
     }
@@ -601,7 +602,7 @@ public class Operations {
     public static void viewTransactions(Customer cust) throws IOException, ParseException {
 
 
-        Transaction tr = fileHandling.getTransactionfromFile(cust.getCustomerID());
+        Transaction tr = DataHandler.getTransactionfromFile(cust.getCustomerID());
 
 
         if (tr != null) {
