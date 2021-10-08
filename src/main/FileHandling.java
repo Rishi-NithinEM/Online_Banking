@@ -12,8 +12,7 @@ import employee.Employee;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 public class FileHandling {
@@ -88,7 +87,7 @@ public class FileHandling {
 
         FileWriter fw = new FileWriter(accFile, true);
 
-        fw.append(acc.getAccountNo() + "," + acc.getPin() + "," + acc.getCustomerID() + "," + acc.getBalance() + "," + acc.getAccType() + "," + acc.getBrachName() + "," + acc.getIfscCode() +"\n");
+        fw.append(acc.getAccountNo() + "," + acc.getPin() + "," + acc.getCustomerID() + "," + acc.getBalance() + "," + acc.getAccType() + "," + acc.getBrachName() + "," + acc.getIfscCode() + "\n");
         fw.flush();
     }
 
@@ -146,6 +145,7 @@ public class FileHandling {
 
         BufferedReader frt = new BufferedReader(new FileReader(empFile));
         String st;
+
         while ((st = frt.readLine()) != null) {
 
             String s[] = st.split(",");
@@ -217,8 +217,9 @@ public class FileHandling {
         return null;
     }
 
-    public Transaction getTransactionfromFile(int custId) throws IOException, ParseException {
+    public List<Transaction> getTransactionfromFile(int custId) throws IOException, ParseException {
 
+        List<Transaction> tt = new ArrayList<>();
         Transaction tr = new Transaction();
 
 
@@ -239,17 +240,16 @@ public class FileHandling {
                 tr.setCurrentBalance(Integer.parseInt(s[5]));
                 tr.setTranactionTime(s[6]);
 
-                return tr;
-
+                tt.add(tr);
             }
         }
 
 
-        return null;
+        return tt;
     }
 
     public String getBeneficiaryfromFile(int accNo) throws IOException {
-        String val="";
+        String val = "";
 
         BufferedReader frt = new BufferedReader(new FileReader(beneFile));
         String st;
@@ -486,7 +486,7 @@ public class FileHandling {
         }
 
 
-        return null;
+        return transactionList;
     }
 
 
@@ -494,19 +494,17 @@ public class FileHandling {
 
         BufferedReader frt = new BufferedReader(new FileReader(accFile));
         String st;
-        String old="";
+        String old = "";
         while ((st = frt.readLine()) != null) {
 
             String stp[] = st.split(",");
 
 
-
-            if(account.getAccountNo() == Integer.parseInt(stp[0]))
-            {
-                stp[3]= Integer.toString(account.getBalance());
-                old+=stp[0]+","+stp[1]+","+stp[2]+","+stp[3]+","+stp[4]+","+stp[5]+","+stp[6]+"\n";
-            }else{
-                old+=st+"\n";
+            if (account.getAccountNo() == Integer.parseInt(stp[0])) {
+                stp[3] = Integer.toString(account.getBalance());
+                old += stp[0] + "," + stp[1] + "," + stp[2] + "," + stp[3] + "," + stp[4] + "," + stp[5] + "," + stp[6] + "\n";
+            } else {
+                old += st + "\n";
             }
 
         }
@@ -516,6 +514,130 @@ public class FileHandling {
         fw.append(old);
         fw.flush();
 
+    }
+
+
+    public NavigableMap<Integer, Customer> getAllCustomerbyID() throws IOException {
+
+        BufferedReader frt = new BufferedReader(new FileReader(custFile));
+        Customer cust;
+        NavigableMap<Integer, Customer> map = new TreeMap<Integer, Customer>();
+        String st = frt.readLine();
+        while (st != null) {
+            cust = new Customer();
+            String s[] = st.split(",");
+
+            cust.setCustomerID(Integer.parseInt(s[0]));
+            cust.setPassword(s[1]);
+            cust.setFirstName(s[2]);
+            cust.setLastName(s[3]);
+            cust.setPhoneNumber(Long.parseLong(s[4]));
+            cust.setDOB(s[5]);
+            cust.setAddressID(Long.parseLong(s[6]));
+
+            map.put(cust.getCustomerID(), cust);
+            st = frt.readLine();
+
+        }
+        return map;
+    }
+
+    public NavigableMap<String, Customer> getAllCustomerbyFname() throws IOException {
+
+        BufferedReader frt = new BufferedReader(new FileReader(custFile));
+        Customer cust;
+        NavigableMap<String, Customer> map = new TreeMap<String, Customer>();
+        String st = frt.readLine();
+        while (st != null) {
+            cust = new Customer();
+            String s[] = st.split(",");
+
+            cust.setCustomerID(Integer.parseInt(s[0]));
+            cust.setPassword(s[1]);
+            cust.setFirstName(s[2]);
+            cust.setLastName(s[3]);
+            cust.setPhoneNumber(Long.parseLong(s[4]));
+            cust.setDOB(s[5]);
+            cust.setAddressID(Long.parseLong(s[6]));
+
+            st = frt.readLine();
+
+            map.put(cust.getFirstName(), cust);
+
+        }
+        return map;
+    }
+
+    public List<Transaction> getReceivedAmountList(int accno) throws IOException {
+
+        List<Transaction> transactionList = new ArrayList();
+
+
+        BufferedReader frt = new BufferedReader(new FileReader(tranFile));
+        String st;
+        boolean b = false;
+        Transaction tr;
+        while ((st = frt.readLine()) != null) {
+            tr = new Transaction();
+
+            String s[] = st.split(",");
+
+
+            int Id = Integer.parseInt(s[3]);
+            if (accno == Id) {
+                tr.setTransactionID(Integer.parseInt(s[0]));
+                tr.setCustomerId(Integer.parseInt(s[1]));
+                tr.setSenderAccNo(Integer.parseInt(s[2]));
+                tr.setReceiverAccNo(Integer.parseInt(s[3]));
+                tr.setTransactionAmt(Integer.parseInt(s[4]));
+                tr.setCurrentBalance(Integer.parseInt(s[5]));
+                tr.setTranactionTime(s[6]);
+
+                transactionList.add(tr);
+
+                tr = null;
+            }
+
+
+        }
+        return transactionList;
+    }
+
+    public List<Transaction> getTransactionbetweenDates(Date from, Date to) throws IOException, ParseException {
+
+        List<Transaction> datetrans = new ArrayList<>();
+        List<Transaction> transactions = getTransactionList();
+
+        Iterator itr = transactions.listIterator();
+        BufferedReader frt = new BufferedReader(new FileReader(tranFile));
+        String st;
+        Transaction tr;
+        while ((st = frt.readLine()) != null) {
+            tr = new Transaction();
+
+            String s[] = st.split(",");
+            String dt = s[6];
+            dt=dt.replaceAll("IST","");
+            SimpleDateFormat formatter5 = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy");
+
+            Date d1 = formatter5.parse(dt);
+
+
+            if(d1.after(from) && d1.after(to)) {
+                tr.setTransactionID(Integer.parseInt(s[0]));
+                tr.setCustomerId(Integer.parseInt(s[1]));
+                tr.setSenderAccNo(Integer.parseInt(s[2]));
+                tr.setReceiverAccNo(Integer.parseInt(s[3]));
+                tr.setTransactionAmt(Integer.parseInt(s[4]));
+                tr.setCurrentBalance(Integer.parseInt(s[5]));
+                tr.setTranactionTime(s[6]);
+
+                datetrans.add(tr);
+
+                tr = null;
+            }
+        }
+        return datetrans;
     }
 
 }

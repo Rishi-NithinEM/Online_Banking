@@ -8,7 +8,9 @@ import employee.Employee;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
+import java.util.NavigableMap;
 
 public class DataHandler {
 
@@ -51,7 +53,7 @@ public class DataHandler {
         return fileHandling.getAccountfromFile(accNo);
     }
 
-    public static Transaction getTransactionfromFile(int custId) throws IOException, ParseException {
+    public static List<Transaction> getTransactionfromFile(int custId) throws IOException, ParseException {
         return fileHandling.getTransactionfromFile(custId);
     }
 
@@ -75,5 +77,20 @@ public class DataHandler {
         return fileHandling.getTransactionList();
     }
 
+    public static NavigableMap<String,Customer> getAllcustomerbyfname() throws IOException {
+        return fileHandling.getAllCustomerbyFname();
+    }
+
+    public static NavigableMap<Integer,Customer> getAllCustomerbyID() throws IOException {
+        return fileHandling.getAllCustomerbyID();
+    }
+
+    public static List<Transaction> getReceivedAmountList(int accno) throws IOException{
+        return fileHandling.getReceivedAmountList(accno);
+    }
+
+    public static List<Transaction> getTransactionbetweenDates(Date from, Date to) throws IOException, ParseException{
+        return fileHandling.getTransactionbetweenDates(from,to);
+    }
 
 }

@@ -53,6 +53,7 @@ public class Operations {
                     System.out.println("Should not contain ',' in the password");
                 }
             }
+            newCustomer.setPassword(encryptPassword(newCustomer.getPassword()));
             newCustomer.setCustomerID(FileHandling.getLastCustId());
             newCustomer.setAddressID(createNewAddress().getAddressID());
             System.out.println("Your CustomerId is : " + newCustomer.getCustomerID());
@@ -60,6 +61,26 @@ public class Operations {
             newCustomer = null;
             return;
         }
+    }
+
+    public static String encryptPassword(String pass){
+
+        int key=4;
+        String newPass="";
+        for(int i=0;i<pass.length();i++) {
+            newPass += "" + (char) (pass.charAt(i) + key);
+        }
+        return newPass;
+    }
+
+    public static String decryptPassword(String pass){
+        int key=4;
+        String newPass="";
+        for(int i=0;i<pass.length();i++) {
+            newPass += "" + (char) (pass.charAt(i) - key);
+        }
+        return newPass;
+
     }
 
 
@@ -134,7 +155,7 @@ public class Operations {
             String password = sc.nextLine();
 
             Customer cust = DataHandler.getCustomerfromFile(id);
-
+            System.out.println(password);
             if (cust != null) {
                 if (cust.getPassword().equals(password)) {
                     System.out.println("\n\n" + cust.getFirstName() + " " + cust.getLastName() + "'s account");
@@ -397,14 +418,15 @@ public class Operations {
             System.out.println("3 : to view all current account");
             System.out.println("4 : to create an employee");
             System.out.println("5 : to view all Transactions");
-            System.out.println("6 : exit");
+            System.out.println("6 : to view all Customers");
+            System.out.println("7 : exit");
             String accType = "";
             int opt = 0;
             String st = sc.nextLine();
             try {
                 opt = Integer.parseInt(st);
             } catch (Exception e) {
-                System.out.println("Enter numbers between 1 - 6 only");
+                System.out.println("Enter numbers between 1 - 7 only");
                 continue;
             }
             switch (opt) {
@@ -434,6 +456,8 @@ public class Operations {
                     }
                 }
                 case 6:
+
+                case 7:
                     return;
                 default:
                     System.out.println("Enter number between 1 - 6 only");
@@ -453,7 +477,53 @@ public class Operations {
         }
     }
 
-    private static List<Account> getAllAccounts(String accType) throws IOException {
+    public static void getAllCustomers() throws IOException {
+
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Select the colmn to be sorted:");
+        System.out.println("1 : First Name\n2 : Customer Id");
+        int num = sc.nextInt();
+        System.out.println("Select the order to be sorted:");
+        System.out.println("1 : Ascending\n2 : Descending");
+        int order = sc.nextInt();
+        List<Customer> customers = new ArrayList<>();
+        if(num==1){
+            NavigableMap<String,Customer>  map =DataHandler.getAllcustomerbyfname();
+            if(order == 2){
+                map = map.descendingMap();
+            }
+            for(Map.Entry m:map.entrySet())
+            {
+                customers.add((Customer) m.getValue());
+            }
+        }else {
+            NavigableMap<Integer,Customer>  map =DataHandler.getAllCustomerbyID();
+            if(order == 2){
+                map = map.descendingMap();
+            }
+            for(Map.Entry m:map.entrySet())
+            {
+                customers.add((Customer) m.getValue());
+            }
+        }
+        printAllCustomer(customers);
+    }
+
+    public static void printAllCustomer(List<Customer> customers){
+
+        Iterator itr = customers.listIterator();
+        Customer cust;
+        while(itr.hasNext()){
+            cust = (Customer) itr.next();
+
+            System.out.println("Customer Name : "+cust.getFirstName()+" "+cust.getLastName());
+            System.out.println("Customer ID : "+cust.getCustomerID());
+            System.out.println("Customer Phone number : "+cust.getPhoneNumber()+"\n");
+        }
+
+
+    }
+    public static List<Account> getAllAccounts(String accType) throws IOException {
 
 
         List<Account> acc = new ArrayList<>();
@@ -566,7 +636,7 @@ public class Operations {
             for (ch = 0; ch < types.length; ++ch) {
                 System.out.println(ch + 1 + " " + types[ch]);
             }
-            System.out.println("3 Check Transactions\n4 Exit");
+            System.out.println("3 Check Transactions\n4 Received Amount\n5 Exit");
             st = sc.nextLine();
             try {
                 ch = Integer.parseInt(st);
@@ -588,6 +658,9 @@ public class Operations {
                     viewTransactions(cust);
                     break;
                 case 4:
+                    printReceivedAmountList(cust);
+                    break;
+                case 5:
                     return;
                 default:
                     System.out.println("Enter number between 1- 4 only");
@@ -598,15 +671,88 @@ public class Operations {
         }
     }
 
+    public static void printReceivedAmountList(Customer customer) throws IOException {
+
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter your account No: ");
+        int accno = sc.nextInt();
+        if(TransactionFunctions.checkAccountNo(accno,customer)!=null){
+            List<Transaction> transactionList = DataHandler.getReceivedAmountList(accno);
+            Iterator itr = transactionList.listIterator();
+            Transaction tr;
+
+            while(itr.hasNext()){
+                tr = (Transaction) itr.next();
+                printTransaction(tr);
+            }
+
+
+
+        }
+
+    }
+
 
     public static void viewTransactions(Customer cust) throws IOException, ParseException {
 
-
-        Transaction tr = DataHandler.getTransactionfromFile(cust.getCustomerID());
+        Scanner sc = new Scanner(System.in);
+        List<Transaction> tr = DataHandler.getTransactionfromFile(cust.getCustomerID());
 
 
         if (tr != null) {
-            printTransaction(tr);
+            System.out.println("1: view Transaction between to dates\n2: all transaction");
+            int num = sc.nextInt();
+            Date d1;
+            Date d2;
+            if(num==1){
+                while(true) {
+                    System.out.println("Enter first date lesser than the secound\nFrom date as dd/mm/yyyy");
+                    String from = sc.nextLine();
+                    if (!dobCheck(from)) {
+                        System.out.println("Enter Date in the correct format dd/mm/yyyy (eg: 31/03/1997)");
+                        continue;
+                    }
+                    System.out.println("Date of birth as dd/mm/yyyy");
+                    String to = sc.nextLine();
+                    if (!dobCheck(to)) {
+                        System.out.println("Enter Date in the correct format dd/mm/yyyy (eg: 31/03/1997)");
+                        continue;
+                    }
+                    SimpleDateFormat formatter1 = new SimpleDateFormat("dd/MM/yyyy");
+                    d1 = formatter1.parse(from);
+                    d2 = formatter1.parse(to);
+                    if (d2.before(d1)) {
+                        continue;
+                    }else
+                        break;
+                }
+                tr = DataHandler.getTransactionbetweenDates(d1,d2);
+                Iterator itr = tr.listIterator();
+                boolean b = false;
+                while(itr.hasNext()){
+                    Transaction tt= (Transaction)itr.next();
+                    if(tt.getCustomerId()==cust.getCustomerID()){
+                        printTransaction(tt);
+                        b=true;
+                    }
+                }
+                if(!b){
+                    System.out.println("No transaction made in that time zone");
+                }
+
+
+            }else if (num == 2){
+                if(tr.isEmpty()){
+                    System.out.println("No transactions Made");
+                }else {
+                    Iterator itr = tr.listIterator();
+                    while (itr.hasNext()){
+                        printTransaction((Transaction) itr.next());
+                    }
+                }
+
+            }else
+                System.out.println("Only numbers 1 and 2");
         } else {
             System.out.println("No transactions made yet");
             return;

@@ -175,7 +175,7 @@ public class TransactionFunctions {
     }
 
 
-    public Account checkAccountNo(int accNo, Customer cust) throws IOException {
+    public static Account checkAccountNo(int accNo, Customer cust) throws IOException {
 
         List<Account> accountList = DataHandler.getAccountList();
         if (accountList != null) {
@@ -192,21 +192,21 @@ public class TransactionFunctions {
         return null;
     }
 
-    public Account checkAccountNo(int accNo) throws IOException {
-
-
-        Iterator var5 = DataHandler.getAccountList().iterator();
-
-        while (var5.hasNext()) {
-            Account acc = (Account) var5.next();
-
-            if (acc.getAccountNo() == accNo) {
-                return acc;
-            }
-        }
-
-        return null;
-    }
+//    public Account checkAccountNo(int accNo) throws IOException {
+//
+//
+//        Iterator var5 = DataHandler.getAccountList().iterator();
+//
+//        while (var5.hasNext()) {
+//            Account acc = (Account) var5.next();
+//
+//            if (acc.getAccountNo() == accNo) {
+//                return acc;
+//            }
+//        }
+//
+//        return null;
+//    }
 
 
 }
